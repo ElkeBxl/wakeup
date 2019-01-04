@@ -1,5 +1,5 @@
-import { Component,ViewChild,ElementRef } from '@angular/core';
-import { IonicPage, NavController, NavParams } from 'ionic-angular';
+import { Component } from '@angular/core';
+import { IonicPage, NavController } from 'ionic-angular';
 declare let google: any;
 /**
  * Generated class for the MapPage page.
@@ -9,74 +9,74 @@ declare let google: any;
  */
 
 @IonicPage({
-  segment: "home"
+	segment: 'home'
 })
 @Component({
-  selector: 'page-home',
-  templateUrl: 'home.html',
+	selector: 'page-home',
+	templateUrl: 'home.html',
 })
 export class HomePage {
-  constructor(private navCtrl: NavController, private navParams: NavParams) {
-  
-  }
-  destination: string;
-  locationErrorInfo: string = null;
-  favouriteList: Array<Object> = [];
+	constructor(private navCtrl: NavController) {
 
-  findUserLocation<Promise>(){
-    return new Promise<any>((resolve,reject) => {
-      if(!!navigator.geolocation) {
-        let self= this;
-        navigator.geolocation.getCurrentPosition(function(position) {             
-          let geolocation:any = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-          self.navCtrl.push("MapPage",{"pin":geolocation});    
-          resolve(geolocation);
-        },function(error){  
-            reject(error.message);
-        },{ enableHighAccuracy: true, maximumAge: 100, timeout: 60000 }
-      );      
-      } else {
-        reject("GPS not supported");
-      }
-    })
-  }
-  goToFavourite(pin){
-    this.navCtrl.push("MapPage",{"pin":pin});    
-  }
+	}
+	destination: string;
+	locationErrorInfo: string = null;
+	favouriteList: Array<Object> = [];
 
-  populateFavouriteList(){
-    this.favouriteList = [];
-    for (var i = 0; i < localStorage.length; i++){
-      if(localStorage.key(i).indexOf("ionic") == -1)
-      this.favouriteList.push({"name":localStorage.key(i), "data":JSON.parse(localStorage.getItem(localStorage.key(i)))});
-    }    
-    if (this.favouriteList.length == 0){
-        this.favouriteList.push({"name":"Your favourite area is empty :("});
-    }
-  }
+	findUserLocation() {
+		return new Promise<any>((resolve, reject) => {
+			if (!!navigator.geolocation) {
+				const self = this;
+				navigator.geolocation.getCurrentPosition(function(position) {
+					const geolocation: any = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+					self.navCtrl.push('MapPage', {'pin': geolocation});
+					resolve(geolocation);
+				}, function(error) {
+					reject(error.message);
+				}, { enableHighAccuracy: true, maximumAge: 100, timeout: 60000 }
+				);
+			} else {
+				reject('GPS not supported');
+			}
+		});
+	}
 
-  ionViewWillEnter() {      
-      this.populateFavouriteList();
-      this.destination = "";
-  }
+	goToFavourite(pin) {
+		this.navCtrl.push('MapPage', {'pin': pin});
+	}
 
-  suggest(event_obj){
-    let selectedPin = null;
-    let autocomplete = new google.maps.places.Autocomplete(event_obj.target, {});
-    google.maps.event.addListener(autocomplete, 'place_changed', () => {      
-      let place = autocomplete.getPlace();
-      if(place.geometry){
-        let latitude = place.geometry.location.lat();
-        let longitude = place.geometry.location.lng();
-        selectedPin = new google.maps.LatLng(latitude, longitude);
-        this.navCtrl.push("MapPage",{"pin":selectedPin})    
-      }     
-    });
-    if((event_obj.keyCode == 13) && (selectedPin == null)){
-      //TODO: TOAST CONTROLLER
-      console.log("Oops.. Couldn't find that location. Try another landmark !")
-    }
-      
-  }
+	populateFavouriteList() {
+		this.favouriteList = [];
+		for (let i = 0; i < localStorage.length; i++) {
+			if (localStorage.key(i).indexOf('ionic') === -1) {
+				this.favouriteList.push({'name': localStorage.key(i), 'data': JSON.parse(localStorage.getItem(localStorage.key(i)))});
+			}
+		}
+		if (this.favouriteList.length === 0) {
+			this.favouriteList.push({'name': 'Your favourite area is empty :('});
+		}
+	}
 
+	ionViewWillEnter() {
+		this.populateFavouriteList();
+		this.destination = '';
+	}
+
+	suggest(event_obj) {
+		let selectedPin = null;
+		const autocomplete = new google.maps.places.Autocomplete(event_obj.target, {});
+		google.maps.event.addListener(autocomplete, 'place_changed', () => {
+			const place = autocomplete.getPlace();
+			if (place.geometry) {
+				const latitude = place.geometry.location.lat();
+				const longitude = place.geometry.location.lng();
+				selectedPin = new google.maps.LatLng(latitude, longitude);
+				this.navCtrl.push('MapPage', {'pin': selectedPin});
+			}
+		});
+		if ((event_obj.keyCode === 13) && (selectedPin == null)) {
+			// TODO: TOAST CONTROLLER
+			console.log('Oops.. Couldn\'t find that location. Try another landmark !');
+		}
+	}
 }
